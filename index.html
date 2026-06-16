@@ -4,42 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZMTQ属性・能力診断</title>
-<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 <style>
+  /* 色彩設定：魔力分析・クリスタルテーマ */
   :root {
-    --bg-color: #0b1319;
-    --card-bg: rgba(20, 34, 43, 0.85); /* 背景のグラデーションを少し透かす */
-    --text-main: #e2e8f0;
-    --accent-cyan: #00e5ff;
+    --bg-color: #0b1319; /* 深い青緑系の黒 */
+    --card-bg: #14222b;
+    --text-main: #e2e8f0; /* プラチナホワイト */
+    --accent-cyan: #00e5ff; /* 発光するシアン */
     --accent-dim: #005f73;
   }
 
   body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     margin: 0;
     padding: 0;
-    /* スマホのURLバーを考慮した高さ設定でスクロールを防ぐ */
-    min-height: 100dvh; 
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-    color: var(--text-main);
-    /* 背景のゆっくり動くグラデーション */
-    background: linear-gradient(-45deg, #0b1319, #1a2a3a, #005f73, #0b1319);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-  }
-
-  @keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  /* ドットフォントを適用するクラス */
-  .dot-font {
-    font-family: 'DotGothic16', sans-serif;
-    letter-spacing: 2px;
+    min-height: 100vh;
   }
 
   #app {
@@ -47,19 +31,9 @@
     max-width: 600px;
     padding: 20px;
     box-sizing: border-box;
-    position: relative;
-    z-index: 10;
   }
 
-  .card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--accent-dim);
-    border-radius: 8px;
-    padding: 30px;
-    box-shadow: 0 4px 20px rgba(0, 229, 255, 0.1);
-    backdrop-filter: blur(5px);
-  }
-
+  /* シークバーと進捗 */
   #progress-container {
     margin-bottom: 30px;
     text-align: right;
@@ -83,9 +57,19 @@
     height: 100%;
     background-color: var(--accent-cyan);
     transition: width 0.4s ease;
-    box-shadow: 0 0 10px var(--accent-cyan);
+    box-shadow: 0 0 8px var(--accent-cyan);
   }
 
+  /* カードデザイン */
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-dim);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  }
+
+  /* 質問テキスト */
   .question-text {
     font-size: 1.2em;
     line-height: 1.6;
@@ -93,6 +77,7 @@
     text-align: center;
   }
 
+  /* 選択肢ボタン */
   .option-btn {
     display: block;
     width: 100%;
@@ -104,28 +89,35 @@
     border-radius: 4px;
     font-size: 1em;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-align: left;
   }
   .option-btn:hover {
-    background-color: rgba(0, 229, 255, 0.15);
+    background-color: rgba(0, 229, 255, 0.1);
     border-color: var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
-    transform: translateX(5px); /* 少し右に動くアニメーション */
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
   }
 
-  .fade-out { opacity: 0; transition: opacity 0.3s ease; }
-  .fade-in { opacity: 1; transition: opacity 0.3s ease; }
+  /* アニメーション用クラス */
+  .fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .fade-in {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
 
+  /* 結果表示画面 */
   .result-title {
     font-size: 1em;
     color: var(--accent-cyan);
     margin-bottom: 5px;
   }
   .result-value {
-    font-size: 2.2em; /* 少し大きく */
+    font-size: 1.8em;
     margin-bottom: 20px;
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); /* 発光効果 */
+    letter-spacing: 2px;
   }
   .result-desc {
     font-size: 1em;
@@ -146,45 +138,27 @@
     font-weight: bold;
     cursor: pointer;
     margin-top: 30px;
-    transition: opacity 0.2s, box-shadow 0.2s;
+    margin-right: 10px;
+    transition: opacity 0.2s;
   }
   .action-btn:hover {
-    opacity: 0.9;
-    box-shadow: 0 0 15px var(--accent-cyan);
+    opacity: 0.8;
   }
-
-  /* ナビゲーションボタン（固定配置） */
-  .nav-btn {
-    position: fixed;
-    z-index: 100;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--accent-dim);
+  .secondary-btn {
+    background-color: transparent;
     color: var(--accent-cyan);
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.2s;
+    border: 1px solid var(--accent-cyan);
   }
-  .nav-btn:hover {
-    background: rgba(0, 229, 255, 0.2);
-    border-color: var(--accent-cyan);
-  }
-  #home-btn { top: 20px; right: 20px; display: none; }
-  #back-btn { bottom: 20px; left: 20px; display: none; }
 </style>
 </head>
 <body>
 
-<button id="home-btn" class="nav-btn dot-font" onclick="location.reload()">HOME</button>
-<button id="back-btn" class="nav-btn dot-font" onclick="goBack()">◀ 戻る</button>
-
 <div id="app">
   <div id="start-screen" class="card fade-in">
     <div style="text-align: center;">
-      <h1 class="dot-font" style="color: var(--accent-cyan); font-size: 2em; margin-bottom: 10px;">ZMTQ<br>属性・能力診断</h1>
+      <h1 style="color: var(--accent-cyan); font-weight: normal; letter-spacing: 2px;">ZMTQ属性・能力診断</h1>
       <p style="margin-bottom: 30px; font-size: 0.9em; color: #a0aec0;">あなたの立ち回りや傾向を解析し、<br>最適な属性とステータスを算出します。</p>
-      <button class="action-btn dot-font" onclick="startQuiz()">解析を開始する</button>
+      <button class="action-btn" onclick="startQuiz()">診断を開始する</button>
     </div>
   </div>
 
@@ -202,13 +176,14 @@
   <div id="result-screen" class="card" style="display: none;">
     <div id="result-content"></div>
     <div style="text-align: center;">
-      <button class="action-btn dot-font" onclick="copyResult()">結果をコピー</button>
+      <button class="action-btn" onclick="copyResult()">診断結果をコピー</button>
+      <button class="action-btn secondary-btn" onclick="location.reload()">ホームに戻る</button>
     </div>
   </div>
 </div>
 
 <script>
-// --- データ定義 (短文は省略せずそのまま使用) ---
+// --- データ定義 ---
 const attributesDesc = {
   "光": "あなたは善意で人と向き合い、周囲を明るく照らすタイプです。困っている人を放っておけず、自然と人の輪の中心に立つことがあります。",
   "水": "あなたは状況に合わせてなめらかに動ける人です。相手や場に調和しながら、器用に立ち回る力があります。",
@@ -396,16 +371,21 @@ const questions = [
   }
 ];
 
-// --- 状態管理 ---
+// --- 状態管理変数 ---
 let currentQuestionIndex = 0;
-let answerHistory = []; // 戻る機能のために選んだ選択肢の効果を記録
-let finalResultData = {}; 
+let points = {
+  "光":0, "水":0, "木":0, "氷":0, "毒":0, "地":0, "風":0, "火":0, "雷":0, "闇":0,
+  "HP":0, "力":0, "魔力":0, "防御":0, "魔防":0, "速さ":0
+};
+let allAttrBonus = 0;
+let allStatBonus = 0;
+let finalResultData = {}; // コピー機能用に結果を保存
 
+// --- 画面遷移・操作ロジック ---
 function startQuiz() {
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('quiz-screen').style.display = 'block';
   document.getElementById('quiz-screen').classList.add('fade-in');
-  document.getElementById('home-btn').style.display = 'block';
   showQuestion();
 }
 
@@ -414,15 +394,13 @@ function showQuestion() {
   qCard.classList.remove('fade-out');
   qCard.classList.add('fade-in');
 
-  // 戻るボタンの表示・非表示コントロール
-  document.getElementById('back-btn').style.display = currentQuestionIndex > 0 ? 'block' : 'none';
-
   const q = questions[currentQuestionIndex];
   document.getElementById('question-text').innerText = q.text;
   
+  // シークバーの更新
   const stepText = String(currentQuestionIndex + 1).padStart(2, '0') + " / " + questions.length;
   document.getElementById('step-counter').innerText = stepText;
-  const progressPercent = (currentQuestionIndex / questions.length) * 100;
+  const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
   document.getElementById('progress-bar-fill').style.width = progressPercent + '%';
 
   const optionsContainer = document.getElementById('options-container');
@@ -438,8 +416,12 @@ function showQuestion() {
 }
 
 function handleAnswer(effects) {
-  // 選んだ効果を履歴に記録
-  answerHistory[currentQuestionIndex] = effects;
+  // ポイント加算
+  for (const [key, val] of Object.entries(effects)) {
+    if (key === "全属性") { allAttrBonus += val; }
+    else if (key === "全能力") { allStatBonus += val; }
+    else { points[key] += val; }
+  }
 
   const qCard = document.getElementById('question-card');
   qCard.classList.remove('fade-in');
@@ -452,70 +434,41 @@ function handleAnswer(effects) {
     } else {
       calculateResult();
     }
-  }, 300);
+  }, 300); // フェードアウトを待つ
 }
 
-function goBack() {
-  if (currentQuestionIndex > 0) {
-    const qCard = document.getElementById('question-card');
-    qCard.classList.remove('fade-in');
-    qCard.classList.add('fade-out');
-    
-    setTimeout(() => {
-      currentQuestionIndex--;
-      showQuestion();
-    }, 200);
-  }
-}
-
+// --- 判定ロジック ---
 function calculateResult() {
   document.getElementById('progress-bar-fill').style.width = '100%';
-  document.getElementById('back-btn').style.display = 'none';
   
-  // ポイントの初期化と集計
-  let points = { "光":0, "水":0, "木":0, "氷":0, "毒":0, "地":0, "風":0, "火":0, "雷":0, "闇":0, "HP":0, "力":0, "魔力":0, "防御":0, "魔防":0, "速さ":0 };
-  let allAttrBonus = 0;
-  let allStatBonus = 0;
-
-  answerHistory.forEach(effects => {
-    for (const [key, val] of Object.entries(effects)) {
-      if (key === "全属性") { allAttrBonus += val; }
-      else if (key === "全能力") { allStatBonus += val; }
-      else { points[key] += val; }
-    }
-  });
-
   const attrKeys = ["光", "水", "木", "氷", "毒", "地", "風", "火", "雷", "闇"];
   const statKeys = ["HP", "力", "魔力", "防御", "魔防", "速さ"];
 
+  // Q11やQ19で得た全能力ボーナスを各ステータスに加算
   statKeys.forEach(k => points[k] += allStatBonus);
 
+  // 属性のソートと最大・最小の取得
   let attrs = attrKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => b.val - a.val);
   let stats = statKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => b.val - a.val);
 
-  // 全属性判定の緩和（最大と最小の差が 4 + ボーナス*2 以内ならOKとする）
-  let isAllAttr = (attrs[0].val - attrs[attrs.length-1].val) <= (4 + allAttrBonus * 2);
+  const maxAttr = attrs[0].val;
+  const minAttr = attrs[attrs.length-1].val;
   
-  // 全能力判定の緩和（全てが一定以上、かつ最大と最小の差が 4 + ボーナス 以内）
-  let isAllStats = (stats[stats.length-1].val >= 1) && ((stats[0].val - stats[stats.length-1].val) <= (4 + allStatBonus));
+  // 全属性判定: 最大と最小の差が (2 + ボーナス) 以内
+  let isAllAttr = (maxAttr - minAttr) <= (2 + allAttrBonus);
 
-  // 高い能力の複数表示ロジック（トップとの差が1以内なら含める）
-  let topStatsArray = [];
-  for (let i = 0; i < stats.length; i++) {
-    if (stats[0].val - stats[i].val <= 1) {
-      topStatsArray.push(stats[i].name);
-    } else {
-      break;
-    }
-  }
+  // 全能力判定: 全てが2以上 かつ 最大と最小の差が3以内
+  let minStat = stats[stats.length-1].val;
+  let maxStat = stats[0].val;
+  let isAllStats = (minStat >= 2) && ((maxStat - minStat) <= 3);
 
+  // 描画・コピー用のデータ保存
   finalResultData = {
     isAllAttr: isAllAttr,
     isAllStats: isAllStats,
     topAttr: attrs[0].name,
     secondAttr: attrs[1].name,
-    topStatsStr: topStatsArray.join("、"), // 「魔力、魔防」のような文字列にする
-    topStatForDesc: stats[0].name // 説明文用には一番高いものを1つ使う
+    topStat: stats[0].name
   };
 
   renderResult();
@@ -532,28 +485,29 @@ function renderResult() {
 
   if (finalResultData.isAllAttr) {
     html += `<div class="result-title">あなたにぴったりの属性は…</div>
-             <div class="result-value dot-font">【全属性】</div>
+             <div class="result-value">【全属性】</div>
              <div class="result-title">その中で一番適性がある属性：${finalResultData.topAttr}</div>`;
   } else {
     html += `<div class="result-title">あなたにぴったりの属性は…</div>
-             <div class="result-value dot-font">【${finalResultData.topAttr}】</div>
+             <div class="result-value">【${finalResultData.topAttr}】</div>
              <div class="result-title">次に適性のある属性：${finalResultData.secondAttr}</div>`;
   }
 
   if (finalResultData.isAllStats) {
     html += `<div class="result-title" style="margin-top:15px;">高い能力：全て</div>`;
   } else {
-    html += `<div class="result-title" style="margin-top:15px;">高い能力：${finalResultData.topStatsStr}</div>`;
+    html += `<div class="result-title" style="margin-top:15px;">高い能力：${finalResultData.topStat}</div>`;
   }
 
-  // 説明文はリストの一番上のものを使用する
+  // テキスト結合
   const attrText = attributesDesc[finalResultData.topAttr];
-  const statText = abilitiesDesc[finalResultData.topStatForDesc];
+  const statText = abilitiesDesc[finalResultData.topStat];
   html += `<div class="result-desc">${attrText}また、あなたは${statText}</div>`;
 
   content.innerHTML = html;
 }
 
+// --- コピー機能 ---
 function copyResult() {
   let copyText = "";
   
@@ -566,13 +520,14 @@ function copyResult() {
   if (finalResultData.isAllStats) {
     copyText += `高い能力：全て\n\n`;
   } else {
-    copyText += `高い能力：${finalResultData.topStatsStr}\n\n`;
+    copyText += `高い能力：${finalResultData.topStat}\n\n`;
   }
 
+  // 実際の公開時にはURLを環境に合わせて変更してください
   copyText += `ZMTQ属性・能力診断\n${window.location.href}`;
 
   navigator.clipboard.writeText(copyText).then(() => {
-    alert("診断結果をコピーしました！");
+    alert("クリップボードに診断結果をコピーしました！");
   }).catch(err => {
     alert("コピーに失敗しました。");
   });
