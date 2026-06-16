@@ -515,7 +515,7 @@ function calculateResult() {
     topAttr: attrs[0].name,
     secondAttr: attrs[1].name,
     topStatsStr: topStatsArray.join("、"), // 「魔力、魔防」のような文字列にする
-    topStatForDesc: attrs[0].name // 説明文用には一番高いものを1つ使う
+    topStatForDesc: stats[0].name // 説明文用には一番高いものを1つ使う
   };
 
   renderResult();
