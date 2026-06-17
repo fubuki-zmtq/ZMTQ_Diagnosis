@@ -74,19 +74,18 @@
   #home-btn { top: 20px; right: 20px; display: block; }
   #back-btn { bottom: 20px; left: 20px; display: none; }
 
-  /* 変更点：ふわっとした柔らかな発光エフェクト */
+  /* 修正：常に明るさが変化する動的なフラッシュ */
   .flash-overlay {
     position: fixed; top: 50%; left: 50%; width: 150vw; height: 150vw;
-    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%);
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 70%);
     transform: translate(-50%, -50%) scale(0);
     z-index: 9999; pointer-events: none; opacity: 0; border-radius: 50%;
   }
-  .flash-active { animation: flashSoft 1.5s ease-out forwards; }
+  .flash-active { animation: flashSoft 1.5s ease-in-out forwards; }
   @keyframes flashSoft {
     0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-    20% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
-    60% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(3); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(5); opacity: 0; }
   }
 
   #console-screen {
@@ -105,7 +104,7 @@
     color: #888; font-size: 0.9rem; opacity: 0; transition: opacity 1s; pointer-events: none;
   }
 
-  /* 変更点：途中で消えないように距離と時間を延長 */
+  /* 修正：画面のずっと上(200vh)まで登りきるように距離を延長 */
   .hex-float {
     position: fixed; bottom: -100px;
     color: rgba(0, 229, 255, 0.2); font-family: 'Courier New', Courier, monospace;
@@ -115,7 +114,7 @@
   }
   @keyframes floatUpHex { 
     0% { bottom: -100px; }
-    100% { bottom: 150vh; } 
+    100% { bottom: 200vh; } 
   }
 </style>
 </head>
@@ -267,7 +266,6 @@ function calculateResult() {
   const statKeys = ["HP", "力", "魔力", "防御", "魔防", "速さ"];
   statKeys.forEach(k => points[k] += allStatBonus);
 
-  // 変更点：優先順位リストを定義し、同点時の並び替えルールに適用
   const attrPriority = ["光", "水", "木", "闇", "火", "風", "雷", "地", "氷", "毒"];
   
   let attrs = attrKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => {
@@ -280,7 +278,6 @@ function calculateResult() {
   let isAllAttr = (attrs[0].val - attrs[attrs.length-1].val) <= (4 + allAttrBonus * 2);
   let isAllStats = (stats[stats.length-1].val >= 1) && ((stats[0].val - stats[stats.length-1].val) <= (4 + allStatBonus));
 
-  // 変更点：デュアル属性の判定
   let isDualAttr = false;
   if (!isAllAttr && attrs[0].val === attrs[1].val) {
     isDualAttr = true;
@@ -328,21 +325,12 @@ function renderResult() {
   const allAttrDesc = "あなたは特定の枠に収まらない、多面的で柔軟な性質の持ち主です。状況や相手に合わせて様々な顔を持ち、どのような環境でも自分なりの適応を見せる万能さがあります。";
   const allStatDesc = "心身のバランスが非常に高く、あらゆる場面で平均以上の力を発揮できるタイプです。極端な弱点が少なく、何事もそつなくこなす総合力を持っています。";
   
-  // 変更点：デュアル属性時の文章合成
-  let attrText = "";
-  if (finalResultData.isAllAttr) {
-    attrText = allAttrDesc;
-  } else if (finalResultData.isDualAttr) {
-    const text1 = attributesDesc[finalResultData.topAttr];
-    const text2 = attributesDesc[finalResultData.topAttr2].replace("あなたは", "");
-    attrText = text1 + "<br><br>また、" + text2;
-  } else {
-    attrText = attributesDesc[finalResultData.topAttr];
-  }
-
+  // 修正：デュアル属性時でも、優先順位が最も高い1つの属性の短文のみを使用
+  let attrText = finalResultData.isAllAttr ? allAttrDesc : attributesDesc[finalResultData.topAttr];
   const statText = finalResultData.isAllStats ? allStatDesc : abilitiesDesc[finalResultData.topStatForDesc];
   
-  html += `<div class="result-desc">${attrText}<br><br>さらに、あなたは${statText}</div>`;
+  // 修正：無駄な改行を削除し、直接繋げる
+  html += `<div class="result-desc">${attrText}また、あなたは${statText}</div>`;
   content.innerHTML = html;
 }
 
@@ -386,7 +374,7 @@ function handleStartClick(e) {
     document.getElementById('quiz-screen').style.display = 'block';
     document.getElementById('quiz-screen').classList.add('fade-in');
     showQuestion();
-  }, 400); 
+  }, 750); // アニメーションの明るさ最大(50%)のタイミング付近で切り替え
   
   setTimeout(() => { flash.classList.remove('flash-active'); }, 1500);
 }
@@ -416,7 +404,7 @@ function flashAndHome() {
     document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('console-content').innerHTML = ''; 
     document.getElementById('console-hint').style.opacity = 0;
-  }, 400);
+  }, 750);
   
   setTimeout(() => { flash.classList.remove('flash-active'); }, 1500);
 }
@@ -496,7 +484,7 @@ function spawnHex() {
   el.style.left = Math.floor(Math.random() * 80 + 10) + '%';
   el.style.animation = `floatUpHex ${10 + Math.random() * 5}s linear forwards`;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 16000);
+  setTimeout(() => el.remove(), 20000); // 削除までの時間も余裕を持たせる
 }
 </script>
 </body>
