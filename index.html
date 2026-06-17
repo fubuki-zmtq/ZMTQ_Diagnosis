@@ -209,6 +209,8 @@ function showQuestion() {
   qCard.classList.add('fade-in');
   document.getElementById('back-btn').style.display = currentQuestionIndex > 0 ? 'block' : 'none';
 
+  document.getElementById('back-btn').style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+
   const q = questions[currentQuestionIndex];
   document.getElementById('question-text').innerText = q.text;
   
