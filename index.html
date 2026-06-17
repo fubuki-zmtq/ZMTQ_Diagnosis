@@ -134,7 +134,7 @@
   <div id="start-screen" class="card fade-in">
     <div style="text-align: center;">
       <h1 class="dot-font" style="color: var(--accent-cyan); font-size: 2em; margin-bottom: 10px;">ZMTQ<br>属性・能力診断</h1>
-      <p style="margin-bottom: 30px; font-size: 0.9em; color: #a0aec0;">あなたの立ち回りや傾向を解析し、<br>最適な属性とステータスを算出します。</p>
+      <p style="margin-bottom: 30px; font-size: 0.9em; color: #a0aec0;">あなたの立ち回りや傾向を分析し、<br>ZMTQでの属性とステータスを診断します。</p>
       <button class="action-btn dot-font no-select" 
               onmousedown="handleTouchStart(event)" 
               onmouseup="handleTouchEnd(event)" 
@@ -289,10 +289,17 @@ function calculateResult() {
     else break;
   }
 
+  // 追加：1位の能力と2位の能力の差が3ポイント以上あれば「突出している」と判定
+  let isOutstandingStat = false;
+  if (!isAllStats && (stats[0].val - stats[1].val >= 3)) {
+    isOutstandingStat = true;
+  }
+
   finalResultData = {
     isAllAttr: isAllAttr,
     isDualAttr: isDualAttr,
     isAllStats: isAllStats,
+    isOutstandingStat: isOutstandingStat,
     topAttr: attrs[0].name,
     topAttr2: attrs[1].name,
     secondAttr: isDualAttr ? attrs[2].name : attrs[1].name,
@@ -308,6 +315,7 @@ function renderResult() {
   const content = document.getElementById('result-content');
   let html = "";
 
+  // 属性部分の表示
   if (finalResultData.isAllAttr) {
     html += `<div class="result-title">あなたにぴったりの属性は…</div><div class="result-value dot-font">【全属性】</div><div class="result-title">その中で一番適性がある属性：${finalResultData.topAttr}</div>`;
   } else if (finalResultData.isDualAttr) {
@@ -316,8 +324,11 @@ function renderResult() {
     html += `<div class="result-title">あなたにぴったりの属性は…</div><div class="result-value dot-font">【${finalResultData.topAttr}】</div><div class="result-title">次に適性のある属性：${finalResultData.secondAttr}</div>`;
   }
   
+  // 能力部分の表示（突出している場合の表示分岐）
   if (finalResultData.isAllStats) {
     html += `<div class="result-title" style="margin-top:15px;">高い能力：全て</div>`;
+  } else if (finalResultData.isOutstandingStat) {
+    html += `<div class="result-title" style="margin-top:15px; color: #ffd700; text-shadow: 0 0 5px rgba(255,215,0,0.5);">突出した能力：${finalResultData.topStatsStr}</div>`;
   } else {
     html += `<div class="result-title" style="margin-top:15px;">高い能力：${finalResultData.topStatsStr}</div>`;
   }
@@ -325,12 +336,18 @@ function renderResult() {
   const allAttrDesc = "あなたは特定の枠に収まらない、多面的で柔軟な性質の持ち主です。状況や相手に合わせて様々な顔を持ち、どのような環境でも自分なりの適応を見せる万能さがあります。";
   const allStatDesc = "心身のバランスが非常に高く、あらゆる場面で平均以上の力を発揮できるタイプです。極端な弱点が少なく、何事もそつなくこなす総合力を持っています。";
   
-  // 修正：デュアル属性時でも、優先順位が最も高い1つの属性の短文のみを使用
   let attrText = finalResultData.isAllAttr ? allAttrDesc : attributesDesc[finalResultData.topAttr];
   const statText = finalResultData.isAllStats ? allStatDesc : abilitiesDesc[finalResultData.topStatForDesc];
   
-  // 修正：無駄な改行を削除し、直接繋げる
-  html += `<div class="result-desc">${attrText}また、あなたは${statText}</div>`;
+  // 短文の結合（突出している場合は特別メッセージを挿入）
+  if (finalResultData.isAllStats) {
+    html += `<div class="result-desc">${attrText}また、あなたは${statText}</div>`;
+  } else if (finalResultData.isOutstandingStat) {
+    html += `<div class="result-desc">${attrText}さらに、あなたには圧倒的な【${finalResultData.topStatForDesc}】の素質があります。${statText}</div>`;
+  } else {
+    html += `<div class="result-desc">${attrText}また、あなたは${statText}</div>`;
+  }
+  
   content.innerHTML = html;
 }
 
@@ -344,8 +361,13 @@ function copyResult() {
     copyText += `あなたにぴったりの属性は…【${finalResultData.topAttr}】\n次に適性のある属性：${finalResultData.secondAttr}\n`; 
   }
   
-  if (finalResultData.isAllStats) { copyText += `高い能力：全て\n\n`; } 
-  else { copyText += `高い能力：${finalResultData.topStatsStr}\n\n`; }
+  if (finalResultData.isAllStats) { 
+    copyText += `高い能力：全て\n\n`; 
+  } else if (finalResultData.isOutstandingStat) {
+    copyText += `突出した能力：${finalResultData.topStatsStr}\n\n`; 
+  } else { 
+    copyText += `高い能力：${finalResultData.topStatsStr}\n\n`; 
+  }
   copyText += `ZMTQ属性・能力診断\n${window.location.href}`;
 
   navigator.clipboard.writeText(copyText).then(() => { alert("診断結果をコピーしました！"); }).catch(err => { alert("コピーに失敗しました。"); });
@@ -374,7 +396,7 @@ function handleStartClick(e) {
     document.getElementById('quiz-screen').style.display = 'block';
     document.getElementById('quiz-screen').classList.add('fade-in');
     showQuestion();
-  }, 750); // アニメーションの明るさ最大(50%)のタイミング付近で切り替え
+  }, 750); 
   
   setTimeout(() => { flash.classList.remove('flash-active'); }, 1500);
 }
@@ -484,7 +506,7 @@ function spawnHex() {
   el.style.left = Math.floor(Math.random() * 80 + 10) + '%';
   el.style.animation = `floatUpHex ${10 + Math.random() * 5}s linear forwards`;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 20000); // 削除までの時間も余裕を持たせる
+  setTimeout(() => el.remove(), 20000);
 }
 </script>
 </body>
