@@ -22,7 +22,7 @@
     background: linear-gradient(-45deg, #0b1319, #1a2a3a, #005f73, #0b1319);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
-    overflow: hidden; /* 背景の浮上などでスクロールバーが出ないように */
+    overflow: hidden;
   }
 
   @keyframes gradientBG {
@@ -33,7 +33,6 @@
 
   .dot-font { font-family: 'DotGothic16', sans-serif; letter-spacing: 2px; }
 
-  /* 長押しによるテキスト選択を防止 */
   .no-select {
     -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
   }
@@ -49,7 +48,6 @@
     backdrop-filter: blur(5px);
   }
 
-  /* 進捗バー・質問テキスト等はこれまでのデザインのまま */
   #progress-container { margin-bottom: 30px; text-align: right; }
   #step-counter { font-family: 'Courier New', Courier, monospace; font-size: 0.9em; color: var(--accent-cyan); margin-bottom: 8px; letter-spacing: 2px; }
   #progress-bar-bg { width: 100%; height: 4px; background-color: var(--accent-dim); border-radius: 2px; overflow: hidden; }
@@ -60,14 +58,12 @@
   .fade-out { opacity: 0; transition: opacity 0.3s ease; }
   .fade-in { opacity: 1; transition: opacity 0.3s ease; }
 
-  /* ローディング画面 */
   .crystal-container { padding: 20px 0; }
   .crystal-loader { width: 40px; height: 40px; background: transparent; border: 2px solid var(--accent-cyan); margin: 0 auto; position: relative; transform: rotate(45deg); animation: crystalPulse 2s infinite ease-in-out, crystalRotate 5s infinite linear; box-shadow: 0 0 15px rgba(0, 229, 255, 0.5); }
   .crystal-loader::after { content: ''; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid var(--accent-cyan); opacity: 0.6; }
   @keyframes crystalPulse { 0%, 100% { box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); opacity: 0.6; } 50% { box-shadow: 0 0 25px rgba(0, 229, 255, 0.8); opacity: 1; } }
   @keyframes crystalRotate { 0% { transform: rotate(45deg); } 100% { transform: rotate(405deg); } }
 
-  /* 結果表示 */
   .result-title { font-size: 1em; color: var(--accent-cyan); margin-bottom: 5px; }
   .result-value { font-size: 2.2em; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
   .result-desc { font-size: 1em; line-height: 1.8; margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--accent-dim); }
@@ -78,24 +74,21 @@
   #home-btn { top: 20px; right: 20px; display: block; }
   #back-btn { bottom: 20px; left: 20px; display: none; }
 
-  /* ---------------- 新規追加：演出・隠し要素 ---------------- */
-
-  /* フラッシュエフェクト */
+  /* 変更点：ふわっとした柔らかな発光エフェクト */
   .flash-overlay {
-    position: fixed; top: 50%; left: 50%; width: 10px; height: 10px;
-    background: white; border-radius: 50%;
+    position: fixed; top: 50%; left: 50%; width: 150vw; height: 150vw;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%);
     transform: translate(-50%, -50%) scale(0);
-    z-index: 9999; pointer-events: none; opacity: 0;
+    z-index: 9999; pointer-events: none; opacity: 0; border-radius: 50%;
   }
-  .flash-active { animation: flashExpand 1s forwards; }
-  @keyframes flashExpand {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-    40% { transform: translate(-50%, -50%) scale(400); opacity: 1; }
-    60% { transform: translate(-50%, -50%) scale(400); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(400); opacity: 0; }
+  .flash-active { animation: flashSoft 1.5s ease-out forwards; }
+  @keyframes flashSoft {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    20% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
+    60% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
   }
 
-  /* 隠しコンソール画面 */
   #console-screen {
     background-color: #000; color: #fff;
     font-family: 'Courier New', Courier, monospace; font-size: 1.1rem; line-height: 2.5;
@@ -112,25 +105,24 @@
     color: #888; font-size: 0.9rem; opacity: 0; transition: opacity 1s; pointer-events: none;
   }
 
-  /* 隠しクリア後の16進数背景 */
+  /* 変更点：途中で消えないように距離と時間を延長 */
   .hex-float {
     position: fixed; bottom: -100px;
     color: rgba(0, 229, 255, 0.2); font-family: 'Courier New', Courier, monospace;
     font-size: 1.5rem; letter-spacing: 4px;
-    transform: rotate(90deg); /* 下側が左を向く */
-    transform-origin: left bottom;
-    animation: floatUpHex 10s linear;
+    transform: rotate(90deg); transform-origin: left bottom;
     z-index: 1; pointer-events: none;
   }
-  @keyframes floatUpHex { to { bottom: 120vh; } }
+  @keyframes floatUpHex { 
+    0% { bottom: -100px; }
+    100% { bottom: 150vh; } 
+  }
 </style>
 </head>
 <body>
 
 <script src="questions.js"></script>
-
 <div id="flash-overlay" class="flash-overlay"></div>
-
 <button id="home-btn" class="nav-btn dot-font" onclick="location.reload()">HOME</button>
 <button id="back-btn" class="nav-btn dot-font" onclick="goBack()">◀ 戻る</button>
 
@@ -181,7 +173,6 @@
 </div>
 
 <script>
-// --- 通常診断のロジック ---
 let currentQuestionIndex = 0;
 let answerHistory = []; 
 let finalResultData = {}; 
@@ -207,8 +198,6 @@ function showQuestion() {
   const qCard = document.getElementById('question-card');
   qCard.classList.remove('fade-out');
   qCard.classList.add('fade-in');
-  document.getElementById('back-btn').style.display = currentQuestionIndex > 0 ? 'block' : 'none';
-
   document.getElementById('back-btn').style.display = currentQuestionIndex > 0 ? 'block' : 'none';
 
   const q = questions[currentQuestionIndex];
@@ -278,11 +267,24 @@ function calculateResult() {
   const statKeys = ["HP", "力", "魔力", "防御", "魔防", "速さ"];
   statKeys.forEach(k => points[k] += allStatBonus);
 
-  let attrs = attrKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => b.val - a.val);
+  // 変更点：優先順位リストを定義し、同点時の並び替えルールに適用
+  const attrPriority = ["光", "水", "木", "闇", "火", "風", "雷", "地", "氷", "毒"];
+  
+  let attrs = attrKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => {
+    if (b.val !== a.val) return b.val - a.val;
+    return attrPriority.indexOf(a.name) - attrPriority.indexOf(b.name);
+  });
+  
   let stats = statKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => b.val - a.val);
 
   let isAllAttr = (attrs[0].val - attrs[attrs.length-1].val) <= (4 + allAttrBonus * 2);
   let isAllStats = (stats[stats.length-1].val >= 1) && ((stats[0].val - stats[stats.length-1].val) <= (4 + allStatBonus));
+
+  // 変更点：デュアル属性の判定
+  let isDualAttr = false;
+  if (!isAllAttr && attrs[0].val === attrs[1].val) {
+    isDualAttr = true;
+  }
 
   let topStatsArray = [];
   for (let i = 0; i < stats.length; i++) {
@@ -291,8 +293,12 @@ function calculateResult() {
   }
 
   finalResultData = {
-    isAllAttr: isAllAttr, isAllStats: isAllStats,
-    topAttr: attrs[0].name, secondAttr: attrs[1].name,
+    isAllAttr: isAllAttr,
+    isDualAttr: isDualAttr,
+    isAllStats: isAllStats,
+    topAttr: attrs[0].name,
+    topAttr2: attrs[1].name,
+    secondAttr: isDualAttr ? attrs[2].name : attrs[1].name,
     topStatsStr: topStatsArray.join("、"),
     topStatForDesc: stats[0].name 
   };
@@ -307,9 +313,12 @@ function renderResult() {
 
   if (finalResultData.isAllAttr) {
     html += `<div class="result-title">あなたにぴったりの属性は…</div><div class="result-value dot-font">【全属性】</div><div class="result-title">その中で一番適性がある属性：${finalResultData.topAttr}</div>`;
+  } else if (finalResultData.isDualAttr) {
+    html += `<div class="result-title">あなたにぴったりの属性は…</div><div class="result-value dot-font">【${finalResultData.topAttr}】＆【${finalResultData.topAttr2}】</div><div class="result-title">次に適性のある属性：${finalResultData.secondAttr}</div>`;
   } else {
     html += `<div class="result-title">あなたにぴったりの属性は…</div><div class="result-value dot-font">【${finalResultData.topAttr}】</div><div class="result-title">次に適性のある属性：${finalResultData.secondAttr}</div>`;
   }
+  
   if (finalResultData.isAllStats) {
     html += `<div class="result-title" style="margin-top:15px;">高い能力：全て</div>`;
   } else {
@@ -318,17 +327,35 @@ function renderResult() {
 
   const allAttrDesc = "あなたは特定の枠に収まらない、多面的で柔軟な性質の持ち主です。状況や相手に合わせて様々な顔を持ち、どのような環境でも自分なりの適応を見せる万能さがあります。";
   const allStatDesc = "心身のバランスが非常に高く、あらゆる場面で平均以上の力を発揮できるタイプです。極端な弱点が少なく、何事もそつなくこなす総合力を持っています。";
-  const attrText = finalResultData.isAllAttr ? allAttrDesc : attributesDesc[finalResultData.topAttr];
+  
+  // 変更点：デュアル属性時の文章合成
+  let attrText = "";
+  if (finalResultData.isAllAttr) {
+    attrText = allAttrDesc;
+  } else if (finalResultData.isDualAttr) {
+    const text1 = attributesDesc[finalResultData.topAttr];
+    const text2 = attributesDesc[finalResultData.topAttr2].replace("あなたは", "");
+    attrText = text1 + "<br><br>また、" + text2;
+  } else {
+    attrText = attributesDesc[finalResultData.topAttr];
+  }
+
   const statText = finalResultData.isAllStats ? allStatDesc : abilitiesDesc[finalResultData.topStatForDesc];
   
-  html += `<div class="result-desc">${attrText}また、あなたは${statText}</div>`;
+  html += `<div class="result-desc">${attrText}<br><br>さらに、あなたは${statText}</div>`;
   content.innerHTML = html;
 }
 
 function copyResult() {
   let copyText = "";
-  if (finalResultData.isAllAttr) { copyText += `あなたにぴったりの属性は…【全属性】\nその中で一番適性がある属性：${finalResultData.topAttr}\n`; } 
-  else { copyText += `あなたにぴったりの属性は…【${finalResultData.topAttr}】\n次に適性のある属性：${finalResultData.secondAttr}\n`; }
+  if (finalResultData.isAllAttr) { 
+    copyText += `あなたにぴったりの属性は…【全属性】\nその中で一番適性がある属性：${finalResultData.topAttr}\n`; 
+  } else if (finalResultData.isDualAttr) {
+    copyText += `あなたにぴったりの属性は…【${finalResultData.topAttr}】＆【${finalResultData.topAttr2}】\n次に適性のある属性：${finalResultData.secondAttr}\n`;
+  } else { 
+    copyText += `あなたにぴったりの属性は…【${finalResultData.topAttr}】\n次に適性のある属性：${finalResultData.secondAttr}\n`; 
+  }
+  
   if (finalResultData.isAllStats) { copyText += `高い能力：全て\n\n`; } 
   else { copyText += `高い能力：${finalResultData.topStatsStr}\n\n`; }
   copyText += `ZMTQ属性・能力診断\n${window.location.href}`;
@@ -336,8 +363,6 @@ function copyResult() {
   navigator.clipboard.writeText(copyText).then(() => { alert("診断結果をコピーしました！"); }).catch(err => { alert("コピーに失敗しました。"); });
 }
 
-
-// --- 長押し判定と裏モードのロジック ---
 let pressTimer;
 let isLongPress = false;
 
@@ -351,9 +376,8 @@ function handleTouchStart(e) {
 function handleTouchEnd(e) { clearTimeout(pressTimer); }
 
 function handleStartClick(e) {
-  if (isLongPress) return; // 長押しの場合は発火させない
+  if (isLongPress) return; 
   
-  // 通常スタートのフラッシュ演出
   const flash = document.getElementById('flash-overlay');
   flash.classList.add('flash-active');
   
@@ -362,9 +386,9 @@ function handleStartClick(e) {
     document.getElementById('quiz-screen').style.display = 'block';
     document.getElementById('quiz-screen').classList.add('fade-in');
     showQuestion();
-  }, 400); // 光が広がりきった瞬間に裏で画面切り替え
+  }, 400); 
   
-  setTimeout(() => { flash.classList.remove('flash-active'); }, 1000);
+  setTimeout(() => { flash.classList.remove('flash-active'); }, 1500);
 }
 
 function startSecretSequence() {
@@ -373,13 +397,12 @@ function startSecretSequence() {
   showLoadingScreen("記憶を呼び覚ましています…", initConsole);
 }
 
-// --- コンソール画面のロジック ---
 let consoleTimeout;
 let consoleStep = 0;
 
 function resetConsoleTimeout() {
   clearTimeout(consoleTimeout);
-  consoleTimeout = setTimeout(flashAndHome, 60000); // 1分放置で強制帰還
+  consoleTimeout = setTimeout(flashAndHome, 60000); 
 }
 
 function flashAndHome() {
@@ -395,7 +418,7 @@ function flashAndHome() {
     document.getElementById('console-hint').style.opacity = 0;
   }, 400);
   
-  setTimeout(() => { flash.classList.remove('flash-active'); }, 1000);
+  setTimeout(() => { flash.classList.remove('flash-active'); }, 1500);
 }
 
 async function initConsole() {
@@ -414,7 +437,7 @@ async function typeText(text) {
   for(let i=0; i<text.length; i++){
     line.innerHTML += text.charAt(i);
     document.getElementById('console-screen').scrollTop = document.getElementById('console-screen').scrollHeight;
-    await new Promise(r => setTimeout(r, 120)); // 1文字ずつタイピング
+    await new Promise(r => setTimeout(r, 120)); 
   }
 }
 
@@ -425,7 +448,7 @@ function createInputLine() {
   cContent.appendChild(line);
   
   const cScreen = document.getElementById('console-screen');
-  cScreen.scrollTop = cScreen.scrollHeight; // スクロールを下へ
+  cScreen.scrollTop = cScreen.scrollHeight; 
   
   const input = line.querySelector('input');
   input.focus();
@@ -463,7 +486,6 @@ function completeSecret() {
   spawnHex();
 }
 
-// 16進数背景のアニメーション
 const hexCodes = ["e4b896e7958c", "e5a48f", "e3839fe383a9e382a4", "e6a084e58589", "e9bc93e58b95", "e58f8be68385", "e38288e3819ee38289", "e9bb8ee6988e", "e382ade382bbe382ad"];
 function spawnHex() {
   if (document.getElementById('start-screen').style.display === 'none') return;
@@ -472,8 +494,9 @@ function spawnHex() {
   el.className = 'hex-float';
   el.innerText = hex;
   el.style.left = Math.floor(Math.random() * 80 + 10) + '%';
+  el.style.animation = `floatUpHex ${10 + Math.random() * 5}s linear forwards`;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 10000);
+  setTimeout(() => el.remove(), 16000);
 }
 </script>
 </body>
