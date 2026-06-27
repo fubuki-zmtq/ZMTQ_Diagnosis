@@ -325,6 +325,11 @@ function calculateResult() {
     topStatForDesc: stats[0].name,
     lowestStat: stats[stats.length - 1].name // 一番低い能力を取得
   };
+  console.log("points");
+  console.log("--attribute points--");
+  console.table(attrs);
+  console.log("--stat points--");
+  console.table(stats);
   renderResult();
 }
 
