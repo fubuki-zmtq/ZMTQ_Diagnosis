@@ -294,8 +294,11 @@ function calculateResult() {
   
   let stats = statKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => b.val - a.val);
 
-  let isAllAttr = (attrs[0].val - attrs[attrs.length-1].val) <= (4 + allAttrBonus * 2);
-  let isAllStats = (stats[stats.length-1].val >= 1) && ((stats[0].val - stats[stats.length-1].val) <= (4 + allStatBonus));
+  // 変更点：全属性判定を厳格化（Q19でCまたはDを選んでいることを必須化）
+  let isAllAttr = (allAttrBonus > 0) && ((attrs[0].val - attrs[attrs.length-1].val) <= (4 + allAttrBonus));
+  
+  // 変更点：全能力判定を厳格化（すべての能力が2以上であることを必須化）
+  let isAllStats = (stats[stats.length-1].val >= 2) && ((stats[0].val - stats[stats.length-1].val) <= (4 + allStatBonus));
 
   let isDualAttr = false;
   if (!isAllAttr && attrs[0].val === attrs[1].val) {
@@ -323,13 +326,15 @@ function calculateResult() {
     secondAttr: isDualAttr ? attrs[2].name : attrs[1].name,
     topStatsStr: topStatsArray.join("、"),
     topStatForDesc: stats[0].name,
-    lowestStat: stats[stats.length - 1].name // 一番低い能力を取得
+    lowestStat: stats[stats.length - 1].name
   };
+
   console.log("points");
-  console.log("--attribute points--");
+  console.log("--attributes points--");
   console.table(attrs);
-  console.log("--stat points--");
+  console.log("--abilities points--");
   console.table(stats);
+
   renderResult();
 }
 
@@ -374,7 +379,6 @@ function renderResult() {
   content.innerHTML = html;
 }
 
-// コピーとX投稿で共通のテキストを作成する関数
 function getShareText() {
   let text = "";
   if (finalResultData.isAllAttr) { 
