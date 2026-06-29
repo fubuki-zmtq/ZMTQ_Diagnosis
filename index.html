@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<!--
+
+ZMTQ属性・能力診断
+
+ソースコードへようこそ！診断は予想通りでしたか？
+
+役に立たない豆知識：ここに辿り着いたあなたはコンソールを開いたまま診断を受けてみましょう
+
+-->
 <html lang="ja">
 <head>
 <!-- Google tag (gtag.js) -->
@@ -294,10 +303,8 @@ function calculateResult() {
   
   let stats = statKeys.map(k => ({name: k, val: points[k]})).sort((a, b) => b.val - a.val);
 
-  // 変更点：全属性判定を厳格化（Q19でCまたはDを選んでいることを必須化）
   let isAllAttr = (allAttrBonus > 0) && ((attrs[0].val - attrs[attrs.length-1].val) <= (4 + allAttrBonus));
   
-  // 変更点：全能力判定を厳格化（すべての能力が2以上であることを必須化）
   let isAllStats = (stats[stats.length-1].val >= 2) && ((stats[0].val - stats[stats.length-1].val) <= (4 + allStatBonus));
 
   let isDualAttr = false;
